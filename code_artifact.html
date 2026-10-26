@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="uk" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>КУЛЬТ. — Твій ґід культурою України</title>
+  
+  <!-- Google Fonts: Unbounded (Headings) & Inter (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            kult: {
+              bg: '#F6F4EF',
+              accent: '#F03E23',
+              dark: '#111111',
+              yellow: '#E5E038',
+              muted: '#666666',
+              cardBg: '#FFFFFF'
+            }
+          },
+          fontFamily: {
+            display: ['Unbounded', 'sans-serif'],
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Custom font styles & keyframes */
+    body {
+      background-color: #F6F4EF;
+      color: #111111;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .font-display {
+      font-family: 'Unbounded', sans-serif;
+    }
+
+    /* Continuous subtle rotation for the floating yellow badge text */
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .animate-spin-slow {
+      animation: spin-slow 20s linear infinite;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F6F4EF;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D1D5DB;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #F03E23;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-[#F03E23] selection:text-white">
+
+  <!-- ==================== TOAST CONTAINER ==================== -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- ==================== NAVIGATION HEADER ==================== -->
+  <header class="sticky top-0 z-40 bg-[#F6F4EF]/95 backdrop-blur-md border-b border-neutral-200/80 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="font-display font-extrabold text-2xl sm:text-3xl tracking-tight text-[#111111] flex items-center gap-0.5 group">
+        КУЛЬТ<span class="text-[#F03E23] group-hover:scale-125 transition-transform inline-block">.</span>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-neutral-800">
+        <a href="#events-section" class="hover:text-[#F03E23] transition-colors py-1">Події</a>
+        <a href="#" onclick="openModal('cities-modal')" class="hover:text-[#F03E23] transition-colors py-1">Міста</a>
+        <a href="#" onclick="openModal('about-modal')" class="hover:text-[#F03E23] transition-colors py-1">Про нас</a>
+        
+        <!-- Favorites Counter Pill -->
+        <button onclick="filterFavorites()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-200/60 hover:bg-neutral-200 text-xs font-semibold transition-colors">
+          <svg class="w-4 h-4 text-[#F03E23] fill-current" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span>Вподобані</span>
+          <span id="header-fav-count" class="bg-[#F03E23] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+        </button>
+      </nav>
+
+      <!-- CTA Button & Mobile Toggle -->
+      <div class="flex items-center gap-3">
+        <button onclick="openModal('add-event-modal')" class="hidden sm:inline-flex items-center gap-2 border border-[#111111] px-5 py-2.5 font-medium text-sm hover:bg-[#111111] hover:text-white transition-all duration-200">
+          <span>Додати подію</span>
+          <span class="text-base leading-none">+</span>
+        </button>
+        
+        <!-- Mobile Menu Button -->
+        <button onclick="toggleMobileNav()" class="md:hidden p-2 text-neutral-900 focus:outline-none" aria-label="Toggle Navigation">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav" class="hidden md:hidden border-t border-neutral-200 bg-[#F6F4EF] px-6 py-4 flex-col gap-4 font-medium text-base">
+      <a href="#events-section" onclick="toggleMobileNav()" class="py-2 hover:text-[#F03E23]">Події</a>
+      <a href="#" onclick="toggleMobileNav(); openModal('cities-modal')" class="py-2 hover:text-[#F03E23]">Міста</a>
+      <a href="#" onclick="toggleMobileNav(); openModal('about-modal')" class="py-2 hover:text-[#F03E23]">Про нас</a>
+      <button onclick="toggleMobileNav(); filterFavorites()" class="flex items-center justify-between py-2 text-left w-full border-t border-neutral-200 pt-3">
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-[#F03E23] fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          Вподобані події
+        </span>
+        <span id="mobile-fav-count" class="bg-[#F03E23] text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+      </button>
+      <button onclick="toggleMobileNav(); openModal('add-event-modal')" class="w-full mt-2 border border-[#111111] py-3 font-semibold text-center hover:bg-[#111111] hover:text-white transition-all">
+        Додати подію +
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== HERO SECTION ==================== -->
+  <section class="relative bg-[#F6F4EF] overflow-hidden border-b border-neutral-300">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[580px] lg:min-h-[640px]">
+        
+        <!-- Left Text Column -->
+        <div class="lg:col-span-6 p-6 sm:p-10 lg:p-16 flex flex-col justify-between z-10">
+          <div>
+            <!-- Top Tagline -->
+            <p class="font-sans text-xs sm:text-sm font-bold tracking-wider text-neutral-800 uppercase mb-4 sm:mb-6">
+              ТВІЙ ГІД КУЛЬТУРОЮ УКРАЇНИ
+            </p>
+            
+            <!-- Hero Headline -->
+            <h1 class="font-display text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.04] text-[#111111] mb-6">
+              ВИХОДЬ<br>
+              <span class="text-[#F03E23]">У СВІТ.</span>
+            </h1>
+            
+            <!-- Subtitle -->
+            <p class="text-neutral-700 text-base sm:text-lg max-w-md mb-8 leading-relaxed font-normal">
+              Концерти, фестивалі, виставки й театр — усе найцікавіше поруч із тобою.
+            </p>
+            
+            <!-- Hero CTA Button -->
+            <a href="#events-section" class="inline-flex items-center gap-4 bg-[#111111] text-white px-7 py-4 font-semibold text-base hover:bg-[#F03E23] transition-all duration-300 shadow-md group">
+              <span>Знайти подію</span>
+              <span class="group-hover:translate-x-1.5 transition-transform duration-200">→</span>
+            </a>
+          </div>
+
+          <!-- Hero Footer Info Tag -->
+          <div class="mt-12 pt-6 border-t border-neutral-300/70">
+            <p class="text-xs sm:text-sm font-semibold tracking-wider text-neutral-500 uppercase">
+              ЩОТИЖНЯ — ПОНАД 200 НОВИХ ПОДІЙ
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Image Column -->
+        <div class="lg:col-span-6 relative min-h-[360px] lg:min-h-full overflow-hidden">
+          
+          <!-- Concert Background Photo -->
+          <img 
+            src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80" 
+            alt="Concert stage crowd neon atmosphere" 
+            class="w-full h-full object-cover object-center"
+          />
+
+          <!-- Floating Orange Date Box Top Right -->
+          <div class="absolute top-0 right-0 bg-[#F03E23] text-white px-6 py-5 sm:px-8 sm:py-6 text-center min-w-[130px] sm:min-w-[150px] shadow-lg z-20">
+            <div class="font-display text-3xl sm:text-4xl font-black leading-none tracking-tight">12-14</div>
+            <div class="font-sans text-xs sm:text-sm font-bold tracking-widest mt-1 uppercase">ЛИПНЯ</div>
+          </div>
+
+          <!-- Rotating Yellow Interactive Badge Overlay -->
+          <div class="absolute bottom-6 left-6 lg:-left-12 z-30 cursor-pointer group" onclick="scrollToEvents()" title="Натисніть для перегляду подій">
+            <div class="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-[#E5E038] shadow-xl flex items-center justify-center transition-transform group-hover:scale-105">
+              
+              <!-- Circular SVG Text Path -->
+              <svg class="w-full h-full animate-spin-slow p-1" viewBox="0 0 100 100">
+                <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none"/>
+                <text font-size="9.5" font-weight="700" letter-spacing="1.5" fill="#111111" class="font-sans uppercase">
+                  <textPath href="#circlePath">
+                    КУЛЬТУРА • МУЗИКА • МИСТЕЦТВО • 
+                  </textPath>
+                </text>
+              </svg>
+              
+              <!-- Center Icon inside Yellow Badge -->
+              <div class="absolute inset-0 flex items-center justify-center">
+                <svg class="w-6 h-6 text-[#111111] group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== EVENTS SECTION ("Найближчі події") ==================== -->
+  <section id="events-section" class="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto w-full flex-grow">
+    
+    <!-- Section Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+      <div>
+        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#111111] tracking-tight">
+          Найближчі події
+        </h2>
+      </div>
+      <div>
+        <button onclick="resetFilters()" class="font-semibold text-sm text-[#111111] hover:text-[#F03E23] flex items-center gap-1 group transition-colors">
+          <span>Уся афіша</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Controls Row: Category Filter Pills + Search & City Selector -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-10 pb-4 border-b border-neutral-200">
+      
+      <!-- Filter Pills -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3" id="category-filters">
+        <button onclick="setCategoryFilter('all', this)" class="filter-btn active-pill px-5 py-2 rounded-full font-medium text-sm transition-all bg-[#111111] text-white">
+          Усі події
+        </button>
+        <button onclick="setCategoryFilter('Концерти', this)" class="filter-btn px-5 py-2 rounded-full font-medium text-sm transition-all bg-white border border-neutral-300 text-neutral-800 hover:bg-neutral-100">
+          Концерти
+        </button>
+        <button onclick="setCategoryFilter('Фестивалі', this)" class="filter-btn px-5 py-2 rounded-full font-medium text-sm transition-all bg-white border border-neutral-300 text-neutral-800 hover:bg-neutral-100">
+          Фестивалі
+        </button>
+        <button onclick="setCategoryFilter('Театр', this)" class="filter-btn px-5 py-2 rounded-full font-medium text-sm transition-all bg-white border border-neutral-300 text-neutral-800 hover:bg-neutral-100">
+          Театр
+        </button>
+        <button onclick="setCategoryFilter('Виставки', this)" class="filter-btn px-5 py-2 rounded-full font-medium text-sm transition-all bg-white border border-neutral-300 text-neutral-800 hover:bg-neutral-100">
+          Виставки
+        </button>
+      </div>
+
+      <!-- Search & City Select Controls -->
+      <div class="flex items-center gap-3 w-full lg:w-auto">
+        <!-- City Select Dropdown -->
+        <select id="city-filter" onchange="handleFilterChange()" class="bg-white border border-neutral-300 text-neutral-800 rounded-full px-4 py-2 text-sm font-medium focus:outline-none focus:border-[#F03E23] cursor-pointer shadow-sm">
+          <option value="all">Усі міста</option>
+          <option value="Київ">Київ</option>
+          <option value="Львів">Львів</option>
+          <option value="Одеса">Одеса</option>
+          <option value="Дніпро">Дніпро</option>
+          <option value="Харків">Харків</option>
+        </select>
+
+        <!-- Search Input -->
+        <div class="relative flex-grow lg:w-64">
+          <input 
+            type="text" 
+            id="search-input"
+            oninput="handleFilterChange()"
+            placeholder="Шукати подію..." 
+            class="w-full bg-white border border-neutral-300 rounded-full pl-9 pr-4 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-[#F03E23] shadow-sm transition-all"
+          />
+          <svg class="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Active Filter Banner (hidden by default) -->
+    <div id="filter-banner" class="hidden mb-6 flex items-center justify-between bg-neutral-200/60 px-4 py-2.5 rounded-lg text-sm text-neutral-800">
+      <span id="filter-banner-text">Показано результати за фільтром</span>
+      <button onclick="resetFilters()" class="text-xs font-bold underline hover:text-[#F03E23]">Скинути все</button>
+    </div>
+
+    <!-- Dynamic Events Grid -->
+    <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+      <!-- Event Cards populated via JS -->
+    </div>
+
+    <!-- Empty State Message -->
+    <div id="no-events-state" class="hidden py-16 text-center">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-200 text-neutral-500 mb-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+      </div>
+      <h3 class="font-display font-bold text-xl text-neutral-800 mb-2">Подій не знайдено</h3>
+      <p class="text-neutral-600 max-w-sm mx-auto mb-6 text-sm">Спробуйте змінити параметри пошуку або обрати іншу категорію.</p>
+      <button onclick="resetFilters()" class="bg-[#111111] text-white px-6 py-2.5 text-sm font-semibold hover:bg-[#F03E23] transition-colors">
+        Скинути всі фільтри
+      </button>
+    </div>
+
+  </section>
+
+  <!-- ==================== ORGANIZERS BANNER SECTION ==================== -->
+  <section class="bg-[#F03E23] text-white py-14 sm:py-20 px-6 sm:px-12 lg:px-16 overflow-hidden relative">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      
+      <!-- Left Heading Block -->
+      <div class="lg:col-span-7">
+        <p class="font-sans text-xs sm:text-sm font-bold tracking-widest uppercase opacity-90 mb-3 text-neutral-900">
+          ДЛЯ ОРГАНІЗАТОРІВ
+        </p>
+        <h2 class="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.04] text-[#111111]">
+          СТВОРЮЄТЕ<br>
+          <span class="text-white">КУЛЬТУРУ?</span>
+        </h2>
+      </div>
+
+      <!-- Right Description & Button Block -->
+      <div class="lg:col-span-5 flex flex-col items-start lg:items-end text-left lg:text-left">
+        <p class="text-white text-base sm:text-lg max-w-md mb-8 leading-relaxed font-normal">
+          Розкажіть про свою подію тисячам людей. Публікація займає лише кілька хвилин.
+        </p>
+        
+        <button onclick="openModal('add-event-modal')" class="bg-white text-[#111111] px-8 py-4 font-bold text-base inline-flex items-center gap-3 hover:bg-[#111111] hover:text-white transition-all duration-300 shadow-xl group">
+          <span>Додати подію</span>
+          <span class="group-hover:translate-x-1.5 transition-transform duration-200">→</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-[#111111] text-white py-10 px-6 sm:px-12 lg:px-16 border-t border-neutral-800">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      
+      <!-- Logo -->
+      <div class="flex items-center gap-2">
+        <a href="#" class="font-display font-extrabold text-2xl tracking-tight text-white">
+          КУЛЬТ<span class="text-[#F03E23]">.</span>
+        </a>
+      </div>
+
+      <!-- Tagline -->
+      <div class="text-center md:text-left text-neutral-400 text-xs sm:text-sm">
+        Місце, де культура знаходить своїх людей.
+      </div>
+
+      <!-- Copyright -->
+      <div class="text-neutral-500 text-xs font-mono">
+        © 2025 КУЛЬТ
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL 1: EVENT DETAILS & TICKET PURCHASE ==================== -->
+  <div id="event-detail-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-[#F6F4EF] rounded-none max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative border border-neutral-300">
+      
+      <!-- Modal Close Button -->
+      <button onclick="closeModal('event-detail-modal')" class="absolute top-4 right-4 z-20 bg-white/90 hover:bg-black hover:text-white text-black rounded-full w-10 h-10 flex items-center justify-center transition-colors shadow-md">
+        ✕
+      </button>
+
+      <!-- Event Header Image -->
+      <div class="relative h-64 sm:h-80 w-full overflow-hidden bg-neutral-900">
+        <img id="modal-event-img" src="" alt="Event" class="w-full h-full object-cover"/>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+        
+        <div class="absolute bottom-6 left-6 right-6 text-white">
+          <span id="modal-event-category" class="inline-block uppercase text-xs font-bold tracking-wider px-3 py-1 bg-[#F03E23] text-white mb-2"></span>
+          <h3 id="modal-event-title" class="font-display text-2xl sm:text-4xl font-extrabold tracking-tight"></h3>
+        </div>
+      </div>
+
+      <!-- Event Meta Details -->
+      <div class="p-6 sm:p-8">
+        <div class="grid grid-cols-2 gap-4 pb-6 mb-6 border-b border-neutral-300 text-sm">
+          <div>
+            <span class="text-neutral-500 text-xs uppercase font-bold tracking-wider block mb-1">Дата та час</span>
+            <span id="modal-event-date" class="font-semibold text-neutral-900 text-base"></span>
+          </div>
+          <div>
+            <span class="text-neutral-500 text-xs uppercase font-bold tracking-wider block mb-1">Місто та локація</span>
+            <span id="modal-event-city" class="font-semibold text-neutral-900 text-base"></span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-8">
+          <h4 class="font-display text-lg font-bold mb-3 text-neutral-900">Про подію</h4>
+          <p id="modal-event-desc" class="text-neutral-700 leading-relaxed text-sm sm:text-base"></p>
+        </div>
+
+        <!-- Interactive Ticket Selector Form -->
+        <div class="bg-white p-5 border border-neutral-300 mb-6">
+          <h4 class="font-display text-base font-bold mb-3 text-neutral-900">Придбання квитків</h4>
+          <div class="flex items-center justify-between mb-4 text-sm">
+            <span>Ціна квитка: <strong id="modal-event-price" class="text-base text-[#F03E23]">450 грн</strong></span>
+            <div class="flex items-center gap-2">
+              <button onclick="adjustTicketQty(-1)" class="w-8 h-8 border border-neutral-300 flex items-center justify-center font-bold hover:bg-neutral-100">-</button>
+              <span id="ticket-qty" class="w-8 text-center font-bold">1</span>
+              <button onclick="adjustTicketQty(1)" class="w-8 h-8 border border-neutral-300 flex items-center justify-center font-bold hover:bg-neutral-100">+</button>
+            </div>
+          </div>
+          
+          <div class="flex items-center justify-between pt-3 border-t border-neutral-200">
+            <span class="text-sm font-semibold">Разом до сплати:</span>
+            <span id="modal-total-price" class="font-display font-extrabold text-xl text-[#111111]">450 грн</span>
+          </div>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="flex flex-col sm:flex-row gap-4">
+          <button id="modal-buy-btn" onclick="confirmTicketPurchase()" class="flex-grow bg-[#F03E23] text-white py-4 px-6 font-bold hover:bg-black transition-colors text-center shadow-md">
+            Забронювати квиток →
+          </button>
+          <button onclick="toggleFavoriteFromModal()" id="modal-fav-btn" class="border border-neutral-400 py-4 px-6 font-semibold hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2">
+            <svg class="w-5 h-5 text-red-500 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <span id="modal-fav-text">Вподобати</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: ADD EVENT FORM ==================== -->
+  <div id="add-event-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-[#F6F4EF] max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 relative border border-neutral-300 shadow-2xl">
+      
+      <!-- Modal Close Button -->
+      <button onclick="closeModal('add-event-modal')" class="absolute top-4 right-4 z-20 bg-white hover:bg-black hover:text-white text-black rounded-full w-9 h-9 flex items-center justify-center transition-colors">
+        ✕
+      </button>
+
+      <div class="mb-6">
+        <p class="text-xs uppercase font-bold tracking-wider text-[#F03E23]">Форма для організаторів</p>
+        <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-[#111111]">Додати нову подію</h3>
+      </div>
+
+      <!-- Add Event Form -->
+      <form onsubmit="handleAddNewEvent(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Назва події *</label>
+          <input type="text" id="add-title" required placeholder="напр., Джаз на даху" class="w-full bg-white border border-neutral-300 p-3 text-sm focus:outline-none focus:border-[#F03E23]">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Категорія *</label>
+            <select id="add-category" required class="w-full bg-white border border-neutral-300 p-3 text-sm focus:outline-none focus:border-[#F03E23]">
+              <option value="КОНЦЕРТ">КОНЦЕРТ</option>
+              <option value="ФЕСТИВАЛЬ">ФЕСТИВАЛЬ</option>
+              <option value="ТЕАТР">ТЕАТР</option>
+              <option value="МИСТЕЦТВО">МИСТЕЦТВО</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Місто *</label>
+            <select id="add-city" required class="w-full bg-white border border-neutral-300 p-3 text-sm focus:outline-none focus:border-[#F03E23]">
+              <option value="КИЇВ">КИЇВ</option>
+              <option value="ЛЬВІВ">ЛЬВІВ</option>
+              <option value="ОДЕСА">ОДЕСА</option>
+              <option value="ДНІПРО">ДНІПРО</option>
+              <option value="ХАРКІВ">ХАРКІВ</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Дати проведення *</label>
+            <input type="text" id="add-date" required placeholder="напр., 15-17 СЕРПНЯ" class="w-full bg-white border border-neutral-300 p-3 text-sm focus:outline-none focus:border-[#F03E23]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Ціна квитка (грн)</label>
+            <input type="number" id="add-price" placeholder="450" class="w-full bg-white border border-neutral-300 p-3 text-sm focus:outline-none focus:border-[#F03E23]">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Зображення (URL)</label>
+          <input type="url" id="add-image" placeholder="https://..." class="w-full bg-white border border-neutral-300 p-3 text-sm focus:outline-none focus:border-[#F03E23]">
+          <p class="text-[11px] text-neutral-500 mt-1">Залиште порожнім для використання стандартного фото.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-1">Опис події *</label>
+          <textarea id="add-desc" rows="3" required placeholder="Опишіть вашу подію, програму та особливості..." class="w-full bg-white border border-neutral-300 p-3 text-sm focus:outline-none focus:border-[#F03E23]"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-[#111111] text-white py-4 font-bold hover:bg-[#F03E23] transition-colors shadow-lg mt-2">
+          Опублікувати подію →
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: TICKET SUCCESS RECEIPT ==================== -->
+  <div id="ticket-success-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="bg-white max-w-md w-full p-6 text-center border-t-8 border-[#F03E23] shadow-2xl relative">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <h3 class="font-display font-bold text-2xl text-neutral-900 mb-2">Квиток заброньовано!</h3>
+      <p class="text-neutral-600 text-sm mb-6">Деталі підтвердження відправлено на вашу електронну пошту.</p>
+      
+      <!-- Simulated Barcode -->
+      <div class="bg-neutral-100 p-4 border border-dashed border-neutral-300 mb-6 font-mono text-xs">
+        <div class="h-12 bg-neutral-800 flex justify-between items-center px-2 mb-2">
+          <div class="h-full w-1 bg-white inline-block"></div>
+          <div class="h-full w-3 bg-white inline-block"></div>
+          <div class="h-full w-2 bg-white inline-block"></div>
+          <div class="h-full w-1 bg-white inline-block"></div>
+          <div class="h-full w-4 bg-white inline-block"></div>
+          <div class="h-full w-2 bg-white inline-block"></div>
+          <div class="h-full w-1 bg-white inline-block"></div>
+        </div>
+        <p class="text-neutral-600">ID: KULT-TICKET-<span id="ticket-code">948271</span></p>
+      </div>
+
+      <button onclick="closeModal('ticket-success-modal')" class="w-full bg-[#111111] text-white py-3 font-semibold hover:bg-neutral-800 transition-colors">
+        Зрозуміло
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 4: CITIES MODAL ==================== -->
+  <div id="cities-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="bg-[#F6F4EF] max-w-lg w-full p-6 sm:p-8 relative border border-neutral-300 shadow-2xl">
+      <button onclick="closeModal('cities-modal')" class="absolute top-4 right-4 bg-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
+      <h3 class="font-display text-2xl font-bold mb-4">Оберіть ваше місто</h3>
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <button onclick="filterByCityModal('Київ')" class="p-4 bg-white border border-neutral-300 text-left font-bold hover:border-[#F03E23] transition-colors">
+          📍 Київ
+          <span class="block text-xs font-normal text-neutral-500 mt-1">85+ подій</span>
+        </button>
+        <button onclick="filterByCityModal('Львів')" class="p-4 bg-white border border-neutral-300 text-left font-bold hover:border-[#F03E23] transition-colors">
+          📍 Львів
+          <span class="block text-xs font-normal text-neutral-500 mt-1">42+ подій</span>
+        </button>
+        <button onclick="filterByCityModal('Одеса')" class="p-4 bg-white border border-neutral-300 text-left font-bold hover:border-[#F03E23] transition-colors">
+          📍 Одеса
+          <span class="block text-xs font-normal text-neutral-500 mt-1">31+ подій</span>
+        </button>
+        <button onclick="filterByCityModal('Дніпро')" class="p-4 bg-white border border-neutral-300 text-left font-bold hover:border-[#F03E23] transition-colors">
+          📍 Дніпро
+          <span class="block text-xs font-normal text-neutral-500 mt-1">19+ подій</span>
+        </button>
+      </div>
+      <button onclick="closeModal('cities-modal')" class="w-full border border-neutral-400 py-2.5 font-semibold text-sm">Закрити</button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 5: ABOUT MODAL ==================== -->
+  <div id="about-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="bg-[#F6F4EF] max-w-lg w-full p-6 sm:p-8 relative border border-neutral-300 shadow-2xl">
+      <button onclick="closeModal('about-modal')" class="absolute top-4 right-4 bg-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
+      <h3 class="font-display text-2xl font-bold mb-3">Про проєкт КУЛЬТ.</h3>
+      <p class="text-neutral-700 text-sm leading-relaxed mb-4">
+        <strong>КУЛЬТ.</strong> — це незалежний культурний агрегатор України. Наша мета — поєднувати людей із найкращими мистецькими та музичними подіями країни.
+      </p>
+      <p class="text-neutral-700 text-sm leading-relaxed mb-6">
+        Щотижня ми оновлюємо афішу, збираючи понад 200 подій: від найгучніших музичних фестивалів до затишних кураторських виставок і вистав сучасної драматургії.
+      </p>
+      <button onclick="closeModal('about-modal')" class="w-full bg-[#111111] text-white py-3 font-semibold text-sm">Зрозуміло</button>
+    </div>
+  </div>
+
+
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <script>
+    // Initial Dataset matching screenshots + additional realistic Ukrainian cultural events
+    const initialEvents = [
+      {
+        id: '1',
+        title: 'Atlas Weekend',
+        category: 'ФЕСТИВАЛЬ',
+        dateCity: '12-14 ЛИПНЯ · КИЇВ',
+        city: 'Київ',
+        categoryGroup: 'Фестивалі',
+        image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
+        price: 1800,
+        isFavorite: false,
+        description: 'Найбільший музичний фестиваль Східної Європи повертається! Понад 5 сцен, міжнародні та українські хедлайнери, фудкорти, арт-зони та неймовірна атмосфера драйву.'
+      },
+      {
+        id: '2',
+        title: 'ДахаБраха наживо',
+        category: 'КОНЦЕРТ',
+        dateCity: '20 ЛИПНЯ · ЛЬВІВ',
+        city: 'Львів',
+        categoryGroup: 'Концерти',
+        image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
+        price: 650,
+        isFavorite: false,
+        description: 'Всесвітньо відомий український етно-хаос гурт «ДахаБраха» із великим сольним концертом під відкритим небом у Львові. Автентичні голоси та потужна сучасна ритміка.'
+      },
+      {
+        id: '3',
+        title: 'Сцена просто неба',
+        category: 'МИСТЕЦТВО',
+        dateCity: '27 ЛИПНЯ · ОДЕСА',
+        city: 'Одеса',
+        categoryGroup: 'Виставки',
+        image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80',
+        price: 350,
+        isFavorite: false,
+        description: 'Літній фестиваль сучасного мистецтва, перформансів та світлових інсталяцій на березі моря. Зв’язок архітектури, музики та візуального мистецтва.'
+      },
+      {
+        id: '4',
+        title: 'Гамлет: Нова сцена',
+        category: 'ТЕАТР',
+        dateCity: '05 СЕРПНЯ · КИЇВ',
+        city: 'Київ',
+        categoryGroup: 'Театр',
+        image: 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?auto=format&fit=crop&w=800&q=80',
+        price: 400,
+        isFavorite: false,
+        description: 'Сучасна авангардна інтерпретація класичної п’єси Шекспіра з елементами іммерсивного театру та живим саундтреком.'
+      },
+      {
+        id: '5',
+        title: 'Сучасна скульптура',
+        category: 'МИСТЕЦТВО',
+        dateCity: '12 СЕРПНЯ · ДНІПРО',
+        city: 'Дніпро',
+        categoryGroup: 'Виставки',
+        image: 'https://images.unsplash.com/photo-1531243269054-5ebf6f34081e?auto=format&fit=crop&w=800&q=80',
+        price: 200,
+        isFavorite: false,
+        description: 'Виставка молодих українських митців, що працюють із металом, керамікою та цифровою формою.'
+      },
+      {
+        id: '6',
+        title: 'Джаз на даху',
+        category: 'КОНЦЕРТ',
+        dateCity: '18 СЕРПНЯ · КИЇВ',
+        city: 'Київ',
+        categoryGroup: 'Концерти',
+        image: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&w=800&q=80',
+        price: 500,
+        isFavorite: false,
+        description: 'Романтичний вечір авторського та класичного джазу з чарівним панорамним виглядом на вечірній Київ.'
+      }
+    ];
+
+    // State
+    let events = [...initialEvents];
+    let activeCategory = 'all';
+    let currentSelectedEventId = null;
+    let ticketQty = 1;
+
+    // DOM Elements
+    const eventsGrid = document.getElementById('events-grid');
+    const noEventsState = document.getElementById('no-events-state');
+    const filterBanner = document.getElementById('filter-banner');
+    const filterBannerText = document.getElementById('filter-banner-text');
+
+    // Initialize application
+    window.addEventListener('DOMContentLoaded', () => {
+      renderEvents();
+      updateFavCounts();
+    });
+
+    // Mobile Nav Toggle
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobile-nav');
+      nav.classList.toggle('hidden');
+      nav.classList.toggle('flex');
+    }
+
+    // Filter by Category Pill
+    function setCategoryFilter(category, btnElement) {
+      activeCategory = category;
+      
+      // Update UI Pills style
+      const pills = document.querySelectorAll('#category-filters button');
+      pills.forEach(pill => {
+        pill.className = 'filter-btn px-5 py-2 rounded-full font-medium text-sm transition-all bg-white border border-neutral-300 text-neutral-800 hover:bg-neutral-100';
+      });
+
+      if (btnElement) {
+        btnElement.className = 'filter-btn active-pill px-5 py-2 rounded-full font-medium text-sm transition-all bg-[#111111] text-white';
+      }
+
+      handleFilterChange();
+    }
+
+    // Handle combined filtering (Category + Search + City)
+    function handleFilterChange() {
+      const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+      const cityQuery = document.getElementById('city-filter').value;
+
+      const filtered = events.filter(ev => {
+        // Category check
+        let matchCat = true;
+        if (activeCategory === 'favorites') {
+          matchCat = ev.isFavorite;
+        } else if (activeCategory !== 'all') {
+          matchCat = ev.categoryGroup.toLowerCase() === activeCategory.toLowerCase() || ev.category.toLowerCase() === activeCategory.toLowerCase();
+        }
+
+        // City check
+        let matchCity = true;
+        if (cityQuery !== 'all') {
+          matchCity = ev.city.toLowerCase() === cityQuery.toLowerCase();
+        }
+
+        // Search check
+        let matchSearch = true;
+        if (searchQuery) {
+          matchSearch = ev.title.toLowerCase().includes(searchQuery) ||
+                        ev.category.toLowerCase().includes(searchQuery) ||
+                        ev.dateCity.toLowerCase().includes(searchQuery) ||
+                        ev.description.toLowerCase().includes(searchQuery);
+        }
+
+        return matchCat && matchCity && matchSearch;
+      });
+
+      // Update Filter Banner info if active filters exist
+      if (activeCategory !== 'all' || cityQuery !== 'all' || searchQuery) {
+        filterBanner.classList.remove('hidden');
+        let text = 'Показано події';
+        if (activeCategory === 'favorites') text += ' (Вподобані)';
+        else if (activeCategory !== 'all') text += ` (${activeCategory})`;
+        if (cityQuery !== 'all') text += ` у м. ${cityQuery}`;
+        if (searchQuery) text += ` за запитом "${searchQuery}"`;
+        filterBannerText.textContent = text;
+      } else {
+        filterBanner.classList.add('hidden');
+      }
+
+      renderEvents(filtered);
+    }
+
+    // Reset all filters
+    function resetFilters() {
+      activeCategory = 'all';
+      document.getElementById('search-input').value = '';
+      document.getElementById('city-filter').value = 'all';
+      
+      // Reset Pills UI
+      const pills = document.querySelectorAll('#category-filters button');
+      pills.forEach((pill, idx) => {
+        if (idx === 0) {
+          pill.className = 'filter-btn active-pill px-5 py-2 rounded-full font-medium text-sm transition-all bg-[#111111] text-white';
+        } else {
+          pill.className = 'filter-btn px-5 py-2 rounded-full font-medium text-sm transition-all bg-white border border-neutral-300 text-neutral-800 hover:bg-neutral-100';
+        }
+      });
+
+      handleFilterChange();
+      showToast('Фільтри скинуто');
+    }
+
+    // Filter favorites
+    function filterFavorites() {
+      setCategoryFilter('favorites', null);
+      scrollToEvents();
+    }
+
+    // Filter by city modal helper
+    function filterByCityModal(cityName) {
+      document.getElementById('city-filter').value = cityName;
+      closeModal('cities-modal');
+      handleFilterChange();
+      scrollToEvents();
+    }
+
+    // Render cards to Grid matching screenshots 2 & 3
+    function renderEvents(itemsToRender = events) {
+      eventsGrid.innerHTML = '';
+
+      if (itemsToRender.length === 0) {
+        noEventsState.classList.remove('hidden');
+        eventsGrid.classList.add('hidden');
+        return;
+      }
+
+      noEventsState.classList.add('hidden');
+      eventsGrid.classList.remove('hidden');
+
+      itemsToRender.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'group flex flex-col bg-transparent overflow-hidden transition-all duration-300';
+        
+        card.innerHTML = `
+          <!-- Image Container -->
+          <div class="relative aspect-[4/3] w-full overflow-hidden bg-neutral-900 mb-4">
+            <img 
+              src="${ev.image}" 
+              alt="${ev.title}" 
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+              onerror="this.src='https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'"
+            />
+            
+            <!-- Category Tag Top-Left -->
+            <div class="absolute top-4 left-4 z-10">
+              <span class="bg-white/95 text-black font-sans font-bold text-[11px] uppercase tracking-wider px-3 py-1 shadow-sm backdrop-blur-sm">
+                ${ev.category}
+              </span>
+            </div>
+
+            <!-- Favorite Heart Icon Top-Right -->
+            <button 
+              onclick="toggleFavorite(event, '${ev.id}')" 
+              class="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow flex items-center justify-center transition-transform active:scale-95 hover:scale-110"
+              title="Вподобати"
+            >
+              <svg class="w-5 h-5 ${ev.isFavorite ? 'text-[#F03E23] fill-current' : 'text-neutral-400 fill-none'} transition-colors" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Card Content -->
+          <div class="flex flex-col flex-grow">
+            <!-- Date & City -->
+            <div class="text-xs font-semibold tracking-wider text-neutral-500 uppercase mb-2">
+              ${ev.dateCity}
+            </div>
+
+            <!-- Title -->
+            <h3 class="font-display text-2xl font-bold tracking-tight text-[#111111] mb-3 group-hover:text-[#F03E23] transition-colors leading-snug">
+              ${ev.title}
+            </h3>
+
+            <!-- Details Button Link -->
+            <div class="mt-auto pt-1">
+              <button 
+                onclick="openDetailModal('${ev.id}')" 
+                class="inline-flex items-center gap-2 font-semibold text-sm text-[#111111] hover:text-[#F03E23] group/link transition-colors"
+              >
+                <span class="border-b border-[#111111] group-hover/link:border-[#F03E23] pb-0.5">Детальніше</span>
+                <span class="group-hover/link:translate-x-1 transition-transform">→</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        eventsGrid.appendChild(card);
+      });
+    }
+
+    // Toggle Favorite logic
+    function toggleFavorite(event, id) {
+      if (event) event.stopPropagation();
+      const target = events.find(e => e.id === id);
+      if (target) {
+        target.isFavorite = !target.isFavorite;
+        updateFavCounts();
+        handleFilterChange();
+        showToast(target.isFavorite ? 'Додано до вподобаних ❤️' : 'Вилучено з вподобаних');
+      }
+    }
+
+    // Toggle Favorite from modal
+    function toggleFavoriteFromModal() {
+      if (currentSelectedEventId) {
+        toggleFavorite(null, currentSelectedEventId);
+        const ev = events.find(e => e.id === currentSelectedEventId);
+        if (ev) updateModalFavBtn(ev);
+      }
+    }
+
+    // Update Favorites Counter
+    function updateFavCounts() {
+      const count = events.filter(e => e.isFavorite).length;
+      document.getElementById('header-fav-count').textContent = count;
+      document.getElementById('mobile-fav-count').textContent = count;
+    }
+
+    // Scroll Helper
+    function scrollToEvents() {
+      document.getElementById('events-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Open Modal Generic
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Close Modal Generic
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Open Detail Modal
+    function openDetailModal(id) {
+      const ev = events.find(e => e.id === id);
+      if (!ev) return;
+
+      currentSelectedEventId = id;
+      ticketQty = 1;
+
+      document.getElementById('modal-event-img').src = ev.image;
+      document.getElementById('modal-event-category').textContent = ev.category;
+      document.getElementById('modal-event-title').textContent = ev.title;
+      document.getElementById('modal-event-date').textContent = ev.dateCity.split('·')[0];
+      document.getElementById('modal-event-city').textContent = ev.city;
+      document.getElementById('modal-event-desc').textContent = ev.description;
+      document.getElementById('modal-event-price').textContent = `${ev.price} грн`;
+      
+      updateTicketPriceDisplay(ev.price);
+      updateModalFavBtn(ev);
+
+      openModal('event-detail-modal');
+    }
+
+    function updateModalFavBtn(ev) {
+      const favText = document.getElementById('modal-fav-text');
+      if (ev.isFavorite) {
+        favText.textContent = 'У вподобаних';
+      } else {
+        favText.textContent = 'Вподобати';
+      }
+    }
+
+    function adjustTicketQty(delta) {
+      ticketQty = Math.max(1, ticketQty + delta);
+      document.getElementById('ticket-qty').textContent = ticketQty;
+      const ev = events.find(e => e.id === currentSelectedEventId);
+      if (ev) updateTicketPriceDisplay(ev.price);
+    }
+
+    function updateTicketPriceDisplay(unitPrice) {
+      const total = unitPrice * ticketQty;
+      document.getElementById('modal-total-price').textContent = `${total} грн`;
+    }
+
+    // Confirm Ticket Purchase Simulation
+    function confirmTicketPurchase() {
+      closeModal('event-detail-modal');
+      document.getElementById('ticket-code').textContent = Math.floor(100000 + Math.random() * 900000);
+      openModal('ticket-success-modal');
+      showToast('Квиток успішно заброньовано!');
+    }
+
+    // Handle New Event Form Submission
+    function handleAddNewEvent(event) {
+      event.preventDefault();
+
+      const title = document.getElementById('add-title').value.trim();
+      const category = document.getElementById('add-category').value;
+      const city = document.getElementById('add-city').value;
+      const date = document.getElementById('add-date').value.trim();
+      const price = parseInt(document.getElementById('add-price').value) || 300;
+      let image = document.getElementById('add-image').value.trim();
+      const desc = document.getElementById('add-desc').value.trim();
+
+      if (!image) {
+        image = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80';
+      }
+
+      // Format Category Group for Filter
+      let categoryGroup = 'Концерти';
+      if (category === 'ФЕСТИВАЛЬ') categoryGroup = 'Фестивалі';
+      else if (category === 'ТЕАТР') categoryGroup = 'Театр';
+      else if (category === 'МИСТЕЦТВО') categoryGroup = 'Виставки';
+
+      const newEvent = {
+        id: Date.now().toString(),
+        title: title,
+        category: category,
+        dateCity: `${date.toUpperCase()} · ${city.toUpperCase()}`,
+        city: city.charAt(0) + city.slice(1).toLowerCase(),
+        categoryGroup: categoryGroup,
+        image: image,
+        price: price,
+        isFavorite: false,
+        description: desc
+      };
+
+      // Push to front of events list
+      events.unshift(newEvent);
+
+      // Reset form
+      event.target.reset();
+      closeModal('add-event-modal');
+
+      // Refresh view
+      resetFilters();
+      scrollToEvents();
+
+      showToast(`Подію "${title}" опубліковано! ✨`);
+    }
+
+    // Toast Notification Manager
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      toast.className = 'bg-[#111111] text-white px-5 py-3 rounded-md shadow-2xl flex items-center gap-3 text-sm border-l-4 border-[#F03E23] pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0';
+      toast.innerHTML = `
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="text-neutral-400 hover:text-white text-xs font-bold">✕</button>
+      `;
+
+      container.appendChild(toast);
+
+      // Trigger animation
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      // Auto dismiss
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
